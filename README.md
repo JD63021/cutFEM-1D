@@ -2,57 +2,65 @@
 
 ## Description
 
-This repository contains a self-contained MATLAB implementation of the Cut Finite Element Method (CutFEM) for a one-dimensional Poisson problem. This code demonstrates how to enforce Dirichlet boundary conditions at locations that do not align with the mesh nodes (unfitted boundaries). This approach is highly relevant for industrial simulations involving moving interfaces or complex geometries where traditional remeshing is computationally expensive.
+# 1D CutFEM Poisson Solver with Numerical Integration Visualization
+
+## Description
+
+This repository contains a self-contained MATLAB implementation of the Cut Finite Element Method (CutFEM) for solving a 1D Poisson problem. A specific highlight of this version is the inclusion of diagnostic visualizations that illustrate how numerical integration (Gauss quadrature) is performed on elements that are "cut" by internal boundary points.
+
+This code is ideal for educational purposes or for debugging unfitted mesh methods where standard element-based integration fails due to discontinuities or internal constraints.
 
 ## Mathematical Problem
 
-The solver addresses the steady-state diffusion equation:
+The solver addresses the 1D steady-state diffusion equation:
 
 -kappa * (d2u / dx2) = f(x)
 
-The domain is defined from x = 0 to x = L.
+The domain is defined on the interval [0, L].
 
 Boundary Conditions:
 
-1. Strong Dirichlet conditions are applied at the domain ends (x = 0 and x = L).
-2. Internal Dirichlet constraints (u(c1) = 1 and u(c2) = 0) are enforced at arbitrary internal points c1 and c2 using the Symmetric Nitsche Method.
-3. A source term (f) is active only within the segment between c1 and c2.
+1. Strong Dirichlet conditions are applied at the global endpoints x = 0 and x = L.
+2. Internal Dirichlet constraints (u = 1 at c1 and u = 0 at c2) are enforced using the Symmetric Nitsche Method. These points do not need to align with the mesh nodes.
+3. A source term f is applied only to the region between the internal markers c1 and c2.
 
 ## Technical Features
 
-1. Higher-Order Elements: Supports polynomial degrees p=1 (linear), p=2 (quadratic), and p=3 (cubic).
-2. Sub-element Integration: When an element is cut by a boundary point, the code identifies the sub-intervals and performs numerical integration on each piece separately to maintain high accuracy.
-3. Symmetric Nitsche Method: A consistent variational framework for enforcing Dirichlet conditions on cut interfaces without the ill-conditioning issues of standard penalty methods.
-4. Ghost Penalty Stabilization: To prevent numerical instability when a boundary point is extremely close to a mesh node (the small-cut problem), the code includes ghost penalty stabilization (face-jump penalties).
+1. Higher-Order Discretization: Supports polynomial degrees p=1, p=2, and p=3.
+2. Unfitted Boundary Enforcement: Uses the Symmetric Nitsche Method to impose Dirichlet values at arbitrary coordinates within an element.
+3. Ghost Penalty Stabilization: Includes face-jump stabilization to maintain system conditioning when an internal boundary is very close to a mesh node.
+4. Sub-element Integration: The code detects "cuts" within an element, divides the element into sub-intervals, and maps Gauss quadrature points to these sub-intervals for exact integration of the stiffness matrix and load vector.
+
+## Visualization of Integration (Gauss Boxes)
+
+Unique to this script are the "Gauss Boxes" plots. When an element is cut by a boundary point, the integration must be split. The script generates:
+
+1. Main FEM View: Shows the final solution, element boundaries, and the accuracy of the internal Dirichlet points.
+2. Left Subpiece Figure: A schematic representation of 2-point Gauss quadrature boxes mapped to the left portion of the cut element.
+3. Right Subpiece Figure: A schematic representation of Gauss quadrature boxes mapped to the right portion of the cut element.
+
+These boxes help verify that the numerical integration correctly spans the physical sub-segments created by the "cut."
 
 ## Configuration Parameters
 
-The following variables can be modified in the Controls section of the script:
+Users can modify the following in the Controls section:
 
-* L: Length of the domain.
-* Ne: Number of elements in the mesh.
+* L: Domain length.
+* Ne: Number of elements (set to 3 by default for clarity in visualization).
 * pDeg: Polynomial degree (1, 2, or 3).
 * kappa: Diffusion coefficient.
-* fVal: Source term magnitude.
-* c0: Initial position of the left boundary marker.
-* shift: Distance to translate the internal segment.
-* gammaN: Nitsche penalty parameter (typically between 20 and 100).
-* useGhost: Set to true to enable ghost penalty stabilization.
-* gammaG: Ghost penalty coefficient.
+* fVal: Magnitude of the source term.
+* c0, shift: Controls the positioning of the internal Dirichlet markers.
+* gammaN: Nitsche penalty parameter.
+* useGhost: Toggle for ghost penalty stabilization.
+* gammaG: Stabilization coefficient.
 
-## How to Use
+## How to Run
 
-1. Ensure you have MATLAB installed.
-2. Copy the code into a file named cutfem_1d_marked_driver.m.
-3. Run the script in the MATLAB Command Window.
-4. The solver will generate a plot showing the exact solution versus the FEM approximation.
-
-## Simulation Output
-
-The script generates a visualization that includes:
-
-* Vertical dashed lines representing the element edges.
-* Individual colored curves for each element to show the local polynomial solution.
-* Specific markers (square and diamond) at the internal points c1 and c2 to verify that the boundary conditions are satisfied exactly at the cut locations.
+1. Copy the code into a file named cutfem_1d_marked_driver_boxes.m.
+2. Execute the script in MATLAB.
+3. Three figures will be produced: the main solution plot and two schematic plots showing the integration logic for the first cut element encountered.
 
 ---
+
+**Next Step:** Would you like me to prepare a README for a script involving 2D mesh generation in Gmsh or a specific OpenFOAM case setup?
