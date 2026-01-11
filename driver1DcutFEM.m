@@ -1,4 +1,4 @@
-% cutfem_1d_marked_driver_boxes.m  (self-contained)
+
 % 3 elements on [0,1.1], P3 CG, symmetric Nitsche at two internal
 % Dirichlet points c1 (u=1) and c2=c1+1 (u=0). Source f=10 only on (c1,c2].
 % Strong Dirichlet at x=0 and x=L. Ghost penalty optional.
@@ -308,3 +308,4 @@ function [K,F] = apply_dirichlet_rc(K,F,i,uD)
     F = F - K(:,i) * uD;
     K(:,i) = 0;  K(i,:) = 0;  K(i,i) = 1;  F(i) = uD;
 end
+
